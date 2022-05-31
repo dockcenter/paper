@@ -1,0 +1,19 @@
+---
+kind: pipeline
+type: kubernetes
+name: Discover PaperMC releases
+trigger:
+  event: 
+    exclude:
+      - promote
+steps:
+  - name: Build
+    image: golang:1.18.2-alpine
+    commands:
+      - go build -o bin/discover github.com/dockcenter/paper/cmd/discover
+  - name: Discover releases
+    image: alpine
+    environment:
+      DURATION: 1h
+    commands:
+      - bin/discover
