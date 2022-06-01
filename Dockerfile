@@ -15,6 +15,13 @@ RUN sed -i 's/false/true/g' eula.txt && \
 
 FROM eclipse-temurin:17-jre-alpine
 
+LABEL org.opencontainers.image.vendor="Dockcenter"
+LABEL org.opencontainers.image.title="PaperMC"
+LABEL org.opencontainers.image.description="Dockcenter PaperMC Docker image"
+LABEL org.opencontainers.image.documentation="https://github.com/dockcenter/paper/blob/main/README.md"
+LABEL org.opencontainers.image.authors="Chao Tzu-Hsien <danny900714@gmail.com>"
+LABEL org.opencontainers.image.licenses="MIT"
+
 ENV JAVA_OPTIONS="-XX:+UseStringDeduplication -XX:+AlwaysPreTouch"
 
 WORKDIR /data
