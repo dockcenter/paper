@@ -27,7 +27,6 @@ func main() {
 	fmt.Println("Trigger event:", event)
 	fmt.Println("Branch:", branch)
 	fmt.Println("Duration:", duration)
-	fmt.Println("Promotion environment:", environment)
 
 	// Get paper versions
 	var project ProjectResponse
@@ -125,7 +124,8 @@ func main() {
 
 	MarkSemver(promotions)
 
-	// Print tags to promote
+	// Print promotion environment and tags to promote
+	fmt.Println("Promotion environment:", environment)
 	fmt.Println("\nTags to promote:")
 	for _, promotion := range promotions {
 		fmt.Println(promotion.DockerTags())
