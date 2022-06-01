@@ -87,8 +87,8 @@ func main() {
 			promotions = append(promotions, promotion)
 		}
 	} else {
-		// If environment is not specified, set it to development
-		if environment == "" {
+		// If it's not cron and environment is not specified, set it to development
+		if event != "cron" && environment == "" {
 			environment = "development"
 		}
 
