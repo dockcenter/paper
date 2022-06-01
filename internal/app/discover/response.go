@@ -44,3 +44,13 @@ type Download struct {
 	Name   string `json:"name"`
 	Sha256 string `json:"sha256"`
 }
+
+type VersionFamilyBuildsResponse struct {
+	VersionFamilyResponse
+	Builds []VersionFamilyBuild `json:"builds"`
+}
+
+type VersionFamilyBuild struct {
+	VersionBuild
+	Version string `json:"version"`
+}

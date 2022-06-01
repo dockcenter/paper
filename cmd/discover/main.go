@@ -6,10 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-resty/resty/v2"
-	"golang.org/x/mod/semver"
-
 	. "github.com/dockcenter/paper/internal/app/discover"
+	"github.com/go-resty/resty/v2"
 )
 
 func main() {
@@ -39,6 +37,7 @@ func main() {
 	json.Unmarshal(resp.Body(), &project)
 
 	// When pushing to main, promote all supported versions' latest build
+	// Otherwise, get all builds in duration in supported vrsion groups
 	var promotions []Promotion
 	if event == "push" && branch == "main" {
 		// Iterate all version groups
@@ -57,8 +56,8 @@ func main() {
 		}
 
 		// Get all builds of versions
-		var semverMap = make(map[string]string)
-		for i, version := range versions {
+		//var semverMap = make(map[string]string)
+		for _, version := range versions {
 			// Get all builds for specific version
 			var builds BuildsResponse
 			url := fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds", PROJECT, version)
@@ -76,36 +75,38 @@ func main() {
 			build := builds.Builds[len(builds.Builds)-1]
 			promotion.Build = build.Build
 			promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DOWNLOADS_KEY].Name)
-
-			// Mark last version build as latest and Major
-			if i == len(versions)-1 {
-				promotion.Latest = true
-				promotion.Major = true
-			} else {
-				promotion.Latest = false
-				promotion.Major = false
-			}
-
-			// Compare semver and mark MajorMinor
-			key := semver.MajorMinor(promotion.Semver())
-			ver, ok := semverMap[key]
-			if ok {
-				if semver.Compare(promotion.Semver(), ver) > 0 {
-					semverMap[key] = promotion.Semver()
-				}
-			} else {
-				semverMap[key] = promotion.Semver()
-			}
-
 			promotions = append(promotions, promotion)
 		}
+	} else {
+		// Get all builds for supported version groups
+		//semverMap := make(map[string]string)
+		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SUPPORTED_VERSION_GROUP:] {
+			var versionFamilyBuilds VersionFamilyBuildsResponse
+			url := fmt.Sprintf("https://api.papermc.io/v2/projects/%s/version_group/%s/builds", PROJECT, versionGroup)
+			resp, err := client.R().Get(url)
+			if err != nil {
+				panic(err)
+			}
+			json.Unmarshal(resp.Body(), &versionFamilyBuilds)
 
-		// mark MajorMinor based on semverMap
-		for i, promotion := range promotions {
-			key := semver.MajorMinor(promotion.Semver())
-			promotions[i].MajorMinor = (semverMap[key] == promotion.Semver())
+			builds := versionFamilyBuilds.Builds
+			for _, build := range builds {
+				// Filter out builds that are longer than duration
+				if time.Since(build.Time) > duration {
+					continue
+				}
+
+				// Build promotion and append to promotions
+				var promotion Promotion
+				promotion.Version = build.Version
+				promotion.Build = build.Build
+				promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DOWNLOADS_KEY].Name)
+				promotions = append(promotions, promotion)
+			}
 		}
 	}
+
+	MarkSemver(promotions)
 
 	for _, promotion := range promotions {
 		fmt.Println(promotion.DockerTags())

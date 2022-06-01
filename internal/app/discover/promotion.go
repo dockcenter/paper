@@ -14,6 +14,7 @@ type Promotion struct {
 	Latest      bool
 	Major       bool
 	MajorMinor  bool
+	Canonical   bool
 }
 
 func (p Promotion) Semver() string {
@@ -23,7 +24,10 @@ func (p Promotion) Semver() string {
 func (p Promotion) DockerTags() string {
 	var tags []string
 	tags = append(tags, strings.ReplaceAll(p.Semver()[1:], "+", "-r"))
-	tags = append(tags, semver.Canonical(p.Semver())[1:])
+
+	if p.Canonical {
+		tags = append(tags, semver.Canonical(p.Semver())[1:])
+	}
 
 	if p.MajorMinor {
 		tags = append(tags, semver.MajorMinor(p.Semver())[1:])
