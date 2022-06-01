@@ -113,4 +113,22 @@ func main() {
 	for _, promotion := range promotions {
 		fmt.Println(promotion.DockerTags())
 	}
+
+	// Build promote commands and write to scripts/promote.sh
+	cmd := "#!/bin/sh\n\n"
+	for _, promotion := range promotions {
+		cmd += BuildCommand(promotion) + "\n"
+	}
+
+	// Write to scripts/promote.sh
+	err = os.MkdirAll("scripts", 0700)
+	if err != nil {
+		return
+	}
+	err = os.WriteFile("scripts/promote.sh", []byte(cmd), 0700)
+	if err != nil {
+		panic(err)
+	}
+	
+	fmt.Println("\nShell script has been generated to scripts/promote.sh")
 }
