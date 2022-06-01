@@ -16,4 +16,7 @@ steps:
     environment:
       DURATION: 24h
     commands:
+      - apk --no-cache add curl tar
+      - curl -L https://github.com/harness/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz | tar zx
+      - install -t /usr/local/bin drone
       - bin/discover
