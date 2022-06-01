@@ -34,7 +34,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	json.Unmarshal(resp.Body(), &project)
+	err = json.Unmarshal(resp.Body(), &project)
+	if err != nil {
+		panic(err)
+	}
 
 	// When pushing to main, promote all supported versions' latest build
 	// Otherwise, get all builds in duration in supported vrsion groups
@@ -50,7 +53,10 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			json.Unmarshal(resp.Body(), &versionFamily)
+			err = json.Unmarshal(resp.Body(), &versionFamily)
+			if err != nil {
+				panic(err)
+			}
 
 			versions = append(versions, versionFamily.Versions...)
 		}
@@ -65,7 +71,10 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			json.Unmarshal(resp.Body(), &builds)
+			err = json.Unmarshal(resp.Body(), &builds)
+			if err != nil {
+				panic(err)
+			}
 
 			// Build promotion
 			var promotion Promotion
@@ -87,7 +96,10 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			json.Unmarshal(resp.Body(), &versionFamilyBuilds)
+			err = json.Unmarshal(resp.Body(), &versionFamilyBuilds)
+			if err != nil {
+				panic(err)
+			}
 
 			builds := versionFamilyBuilds.Builds
 			for _, build := range builds {
@@ -123,12 +135,12 @@ func main() {
 	// Write to scripts/promote.sh
 	err = os.MkdirAll("scripts", 0700)
 	if err != nil {
-		return
+		panic(err)
 	}
 	err = os.WriteFile("scripts/promote.sh", []byte(cmd), 0700)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	fmt.Println("\nShell script has been generated to scripts/promote.sh")
 }
