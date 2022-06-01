@@ -20,10 +20,10 @@ func main() {
 	event := os.Getenv("DRONE_BUILD_EVENT")
 	branch := os.Getenv("DRONE_BRANCH")
 	duration, err := time.ParseDuration(os.Getenv("DURATION"))
-	environment := os.Getenv("ENVIRONMENT")
 	if err != nil {
 		panic(err)
 	}
+	environment := os.Getenv("ENVIRONMENT")
 	fmt.Println("Trigger event:", event)
 	fmt.Println("Branch:", branch)
 	fmt.Println("Duration:", duration)
@@ -64,7 +64,6 @@ func main() {
 		}
 
 		// Get all builds of versions
-		//var semverMap = make(map[string]string)
 		for _, version := range versions {
 			// Get all builds for specific version
 			var builds BuildsResponse
@@ -89,8 +88,12 @@ func main() {
 			promotions = append(promotions, promotion)
 		}
 	} else {
+		// If environment is not specified, set it to development
+		if environment == "" {
+			environment = "development"
+		}
+
 		// Get all builds for supported version groups
-		//semverMap := make(map[string]string)
 		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SupportedVersionGroup:] {
 			var versionFamilyBuilds VersionFamilyBuildsResponse
 			url := fmt.Sprintf("https://api.papermc.io/v2/projects/%s/version_group/%s/builds", PROJECT, versionGroup)

@@ -17,8 +17,7 @@ steps:
       DRONE_SERVER: http://drone
       DRONE_TOKEN:
         from_secret: drone_token
-      DURATION: 24h
-      ENVIRONMENT: development
+      DURATION: 1h
     commands:
       - apk --no-cache add curl tar
       - curl -L https://github.com/harness/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz | tar zx
