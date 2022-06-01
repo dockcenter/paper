@@ -66,3 +66,9 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+
+---
+kind: signature
+hmac: 4b7bf0330dffa023c791877fa1754f17b0d2d823b8168a16e2c0a12671753930
+
+...
