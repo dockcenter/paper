@@ -15,8 +15,51 @@ steps:
     image: alpine
     environment:
       DURATION: 24h
+      ENVIRONMENT: development
     commands:
       - apk --no-cache add curl tar
       - curl -L https://github.com/harness/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz | tar zx
       - install -t /usr/local/bin drone
       - bin/discover
+      - sh scripts/promote.sh
+
+---
+kind: pipeline
+type: kubernetes
+name: Publish
+trigger:
+  event:
+    - promote
+steps:
+  - name: Build Docker image
+    image: plugins/docker
+    when:
+      target:
+        - development
+    settings:
+      dockerfile: Dockerfile
+      dry_run: true
+      repo: dockcenter/paper
+      tags: ${DOCKER_TAGS}
+      build_args_from_env:
+        - DOWNLOAD_URL
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+  - name: Publish Docker image
+    image: plugins/docker
+    when:
+      target:
+        exclude:
+          - development
+    settings:
+      dockerfile: Dockerfile
+      repo: dockcenter/paper
+      tags: ${DOCKER_TAGS}
+      build_args_from_env:
+        - DOWNLOAD_URL
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password

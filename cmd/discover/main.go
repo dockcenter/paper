@@ -20,12 +20,14 @@ func main() {
 	event := os.Getenv("DRONE_BUILD_EVENT")
 	branch := os.Getenv("DRONE_BRANCH")
 	duration, err := time.ParseDuration(os.Getenv("DURATION"))
+	environment := os.Getenv("environment")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Trigger event:", event)
 	fmt.Println("Branch:", branch)
 	fmt.Println("Duration:", duration)
+	fmt.Println("Promotion environment:", environment)
 
 	// Get paper versions
 	var project ProjectResponse
@@ -129,7 +131,7 @@ func main() {
 	// Build promote commands and write to scripts/promote.sh
 	cmd := "#!/bin/sh\n\n"
 	for _, promotion := range promotions {
-		cmd += BuildCommand(promotion) + "\n"
+		cmd += BuildCommand(promotion, environment) + "\n"
 	}
 
 	// Write to scripts/promote.sh
