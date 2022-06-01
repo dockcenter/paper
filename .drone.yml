@@ -60,6 +60,7 @@ steps:
       repo: dockcenter/paper
       tags: ${DOCKER_TAGS}
       build_args_from_env:
+        - BASE_IMAGE_TAG
         - DOWNLOAD_URL
       username:
         from_secret: docker_username
