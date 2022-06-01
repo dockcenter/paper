@@ -20,7 +20,7 @@ func main() {
 	event := os.Getenv("DRONE_BUILD_EVENT")
 	branch := os.Getenv("DRONE_BRANCH")
 	duration, err := time.ParseDuration(os.Getenv("DURATION"))
-	environment := os.Getenv("environment")
+	environment := os.Getenv("ENVIRONMENT")
 	if err != nil {
 		panic(err)
 	}
