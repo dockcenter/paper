@@ -13,8 +13,8 @@ import (
 func main() {
 	client := resty.New()
 	const PROJECT string = "paper"
-	const SUPPORTED_VERSION_GROUP int = 2
-	const DOWNLOADS_KEY string = "application"
+	const SupportedVersionGroup int = 2
+	const DownloadsKey string = "application"
 
 	// Parse environment variables
 	event := os.Getenv("DRONE_BUILD_EVENT")
@@ -42,7 +42,7 @@ func main() {
 	if event == "push" && branch == "main" {
 		// Iterate all version groups
 		var versions []string
-		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SUPPORTED_VERSION_GROUP:] {
+		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SupportedVersionGroup:] {
 			// Get all versions in version group
 			var versionFamily VersionFamilyResponse
 			url := fmt.Sprintf("https://api.papermc.io/v2/projects/%s/version_group/%s", PROJECT, versionGroup)
@@ -74,13 +74,13 @@ func main() {
 			// Select latest build in each version
 			build := builds.Builds[len(builds.Builds)-1]
 			promotion.Build = build.Build
-			promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DOWNLOADS_KEY].Name)
+			promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DownloadsKey].Name)
 			promotions = append(promotions, promotion)
 		}
 	} else {
 		// Get all builds for supported version groups
 		//semverMap := make(map[string]string)
-		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SUPPORTED_VERSION_GROUP:] {
+		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SupportedVersionGroup:] {
 			var versionFamilyBuilds VersionFamilyBuildsResponse
 			url := fmt.Sprintf("https://api.papermc.io/v2/projects/%s/version_group/%s/builds", PROJECT, versionGroup)
 			resp, err := client.R().Get(url)
@@ -100,7 +100,7 @@ func main() {
 				var promotion Promotion
 				promotion.Version = build.Version
 				promotion.Build = build.Build
-				promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DOWNLOADS_KEY].Name)
+				promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DownloadsKey].Name)
 				promotions = append(promotions, promotion)
 			}
 		}
@@ -108,6 +108,8 @@ func main() {
 
 	MarkSemver(promotions)
 
+	// Print tags to promote
+	fmt.Println("\nTags to promote:")
 	for _, promotion := range promotions {
 		fmt.Println(promotion.DockerTags())
 	}
