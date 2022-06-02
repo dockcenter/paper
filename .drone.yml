@@ -17,7 +17,6 @@ steps:
       DRONE_SERVER: http://drone
       DRONE_TOKEN:
         from_secret: drone_token
-      DURATION: 1h
     commands:
       - apk --no-cache add curl tar
       - curl -L https://github.com/harness/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz | tar zx
@@ -69,6 +68,6 @@ steps:
 
 ---
 kind: signature
-hmac: 4b7bf0330dffa023c791877fa1754f17b0d2d823b8168a16e2c0a12671753930
+hmac: bd7bf9e33319837e814902a70c2d824ba5d61b09ab40a1ed089fa60d2f4e4a46
 
 ...
