@@ -7,6 +7,7 @@ import (
 	"github.com/dockcenter/paper/internal/pkg/utils/slices"
 	"github.com/go-resty/resty/v2"
 	"os"
+	"time"
 )
 
 func main() {
@@ -19,9 +20,11 @@ func main() {
 	// Parse environment variables
 	event := os.Getenv("DRONE_BUILD_EVENT")
 	branch := os.Getenv("DRONE_BRANCH")
+	duration := os.Getenv("DURATION")
 	environment := os.Getenv("ENVIRONMENT")
 	fmt.Println("Trigger event:", event)
 	fmt.Println("Branch:", branch)
+	fmt.Println("Duration:", duration)
 
 	// Get paper versions
 	var project ProjectResponse
@@ -87,11 +90,13 @@ func main() {
 			environment = "development"
 		}
 
-		// Get all docker tags
+		// Get all docker tags when duration is not set
 		var tagNames []string
-		tags := GetAllTags(DockerRepository)
-		for _, tag := range tags {
-			tagNames = append(tagNames, tag.Name)
+		if duration == "" {
+			tags := GetAllTags(DockerRepository)
+			for _, tag := range tags {
+				tagNames = append(tagNames, tag.Name)
+			}
 		}
 
 		// Get all builds for supported version groups
@@ -112,9 +117,22 @@ func main() {
 			for i := len(builds) - 1; i >= 0; i-- {
 				build := builds[i]
 
-				// Filter out build and following existed in Docker Hub
-				if slices.ContainsString(tagNames, GetTagName(build.Version, build.Build)) {
-					break
+				// Filter builds
+				if duration != "" {
+					duration, err := time.ParseDuration(duration)
+					if err != nil {
+						panic(err)
+					}
+
+					// Filter out builds that are longer than duration
+					if time.Since(build.Time) > duration {
+						continue
+					}
+				} else {
+					// Filter out build and following existed in Docker Hub
+					if slices.ContainsString(tagNames, GetTagName(build.Version, build.Build)) {
+						break
+					}
 				}
 
 				// Build promotion and append to promotions
