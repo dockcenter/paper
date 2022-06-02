@@ -3,30 +3,25 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"time"
-
 	. "github.com/dockcenter/paper/internal/app/discover"
+	"github.com/dockcenter/paper/internal/pkg/utils/slices"
 	"github.com/go-resty/resty/v2"
+	"os"
 )
 
 func main() {
 	client := resty.New()
 	const PROJECT string = "paper"
+	const DockerRepository string = "dockcenter/paper"
 	const SupportedVersionGroup int = 2
 	const DownloadsKey string = "application"
 
 	// Parse environment variables
 	event := os.Getenv("DRONE_BUILD_EVENT")
 	branch := os.Getenv("DRONE_BRANCH")
-	duration, err := time.ParseDuration(os.Getenv("DURATION"))
-	if err != nil {
-		panic(err)
-	}
 	environment := os.Getenv("ENVIRONMENT")
 	fmt.Println("Trigger event:", event)
 	fmt.Println("Branch:", branch)
-	fmt.Println("Duration:", duration)
 
 	// Get paper versions
 	var project ProjectResponse
@@ -92,6 +87,13 @@ func main() {
 			environment = "development"
 		}
 
+		// Get all docker tags
+		var tagNames []string
+		tags := GetAllTags(DockerRepository)
+		for _, tag := range tags {
+			tagNames = append(tagNames, tag.Name)
+		}
+
 		// Get all builds for supported version groups
 		for _, versionGroup := range project.VersionGroups[len(project.VersionGroups)-SupportedVersionGroup:] {
 			var versionFamilyBuilds VersionFamilyBuildsResponse
@@ -106,10 +108,13 @@ func main() {
 			}
 
 			builds := versionFamilyBuilds.Builds
-			for _, build := range builds {
-				// Filter out builds that are longer than duration
-				if time.Since(build.Time) > duration {
-					continue
+			var versionGroupPromotions []Promotion
+			for i := len(builds) - 1; i >= 0; i-- {
+				build := builds[i]
+
+				// Filter out build and following existed in Docker Hub
+				if slices.ContainsString(tagNames, GetTagName(build.Version, build.Build)) {
+					break
 				}
 
 				// Build promotion and append to promotions
@@ -117,8 +122,12 @@ func main() {
 				promotion.Version = build.Version
 				promotion.Build = build.Build
 				promotion.DownloadURL = fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", PROJECT, promotion.Version, promotion.Build, build.Downloads[DownloadsKey].Name)
-				promotions = append(promotions, promotion)
+				versionGroupPromotions = append(versionGroupPromotions, promotion)
 			}
+
+			// Reverse versionGroupPromotions and append to promotions
+			slices.Reverse(versionGroupPromotions)
+			promotions = append(promotions, versionGroupPromotions...)
 		}
 	}
 
