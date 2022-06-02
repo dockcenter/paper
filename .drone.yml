@@ -48,6 +48,7 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      mtu: 1440
   - name: Publish Docker image
     image: plugins/docker
     when:
@@ -65,9 +66,10 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      mtu: 1440
 
 ---
 kind: signature
-hmac: bd7bf9e33319837e814902a70c2d824ba5d61b09ab40a1ed089fa60d2f4e4a46
+hmac: 748d39b8c3350eb46ce41601d85a4d888610427584670aa8e333bd2fd1f2af47
 
 ...
