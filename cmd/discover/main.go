@@ -21,9 +21,6 @@ func main() {
 	event := os.Getenv("DRONE_BUILD_EVENT")
 	branch := os.Getenv("DRONE_BRANCH")
 	duration := os.Getenv("DURATION")
-	if duration == "" {
-		duration = "docker tag"
-	}
 	environment := os.Getenv("ENVIRONMENT")
 	fmt.Println("Trigger event:", event)
 	fmt.Println("Branch:", branch)
@@ -95,7 +92,7 @@ func main() {
 
 		// Get all docker tags when duration is not set
 		var tagNames []string
-		if duration == "docker tag" {
+		if duration == "" {
 			tags := GetAllTags(DockerRepository)
 			for _, tag := range tags {
 				tagNames = append(tagNames, tag.Name)
@@ -121,12 +118,7 @@ func main() {
 				build := builds[i]
 
 				// Filter builds
-				if duration == "docker tag" {
-					// Filter out build and following existed in Docker Hub
-					if slices.ContainsString(tagNames, GetTagName(build.Version, build.Build)) {
-						break
-					}
-				} else {
+				if duration != "" {
 					duration, err := time.ParseDuration(duration)
 					if err != nil {
 						panic(err)
@@ -135,6 +127,11 @@ func main() {
 					// Filter out builds that are longer than duration
 					if time.Since(build.Time) > duration {
 						continue
+					}
+				} else {
+					// Filter out build and following existed in Docker Hub
+					if slices.ContainsString(tagNames, GetTagName(build.Version, build.Build)) {
+						break
 					}
 				}
 
