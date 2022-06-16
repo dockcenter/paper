@@ -21,5 +21,3 @@ jobs:
           cache: true
       - name: Run discover script
         run: go run github.com/dockcenter/paper/cmd/discover
-        env:
-          DRY_RUN: true
