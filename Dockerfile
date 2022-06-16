@@ -1,6 +1,4 @@
-ARG BASE_IMAGE_TAG
-
-FROM eclipse-temurin:$BASE_IMAGE_TAG AS builder
+FROM eclipse-temurin:17-jre-alpine AS builder
 
 ARG DOWNLOAD_URL
 
@@ -15,7 +13,7 @@ RUN wget -P /opt/papermc/ $DOWNLOAD_URL && \
 RUN sed -i 's/false/true/g' eula.txt && \
     rm -R logs/
 
-FROM eclipse-temurin:$BASE_IMAGE_TAG
+FROM eclipse-temurin:17-jre-alpine
 
 LABEL org.opencontainers.image.vendor="Dockcenter"
 LABEL org.opencontainers.image.title="PaperMC"
