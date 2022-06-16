@@ -10,7 +10,7 @@ jobs:
     name: Watch Paper release
     runs-on: ubuntu-latest
     env:
-      DRY_RUN: true
+      DRY_RUN: ${{ !(github.ref_name == 'main' && (github.event == 'schedule' || github.event == 'push')) }}
 
     steps:
       - name: Checkout
