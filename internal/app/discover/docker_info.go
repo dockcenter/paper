@@ -72,7 +72,7 @@ func BuildImageInfo(builds []VersionFamilyBuild, existingTags []string, event Ev
 
 		info := ImageInfo{
 			DownloadURL: fmt.Sprintf("https://api.papermc.io/v2/projects/%s/versions/%s/builds/%d/downloads/%s", Project, build.Version, build.Build, build.Downloads[DownloadsKey].Name),
-			Tags:        strings.Join(tags, "\n"),
+			Tags:        strings.Join(tags, "\\n"),
 		}
 		imageInfo = append(imageInfo, info)
 	}
