@@ -1,11 +1,11 @@
 # PaperMC Automatically Built Docker Image
 
-[![Build Status](https://github.drone.webzyno.com/api/badges/dockcenter/paper/status.svg)](https://github.drone.webzyno.com/dockcenter/paper)
-[![GitHub](https://img.shields.io/github/license/dockcenter/paper?color=informational)](https://github.com/dockcenter/drone/blob/main/LICENSE)
+[![Watch paper release](https://github.com/dockcenter/paper/actions/workflows/watch-releases.yaml/badge.svg?branch=main&event=schedule)](https://github.com/dockcenter/paper/actions/workflows/watch-releases.yaml)
+[![GitHub](https://img.shields.io/github/license/dockcenter/paper?color=informational)](https://github.com/dockcenter/paper/blob/main/LICENSE)
 
 This is a PaperMC docker image with optimized flag provided by official [docs](https://docs.papermc.io/paper/aikars-flags).
 
-We use [dedicated CI server](https://github.drone.webzyno.com/dockcenter/paper) to track PaperMC builds and automatically build Docker image.
+We use [GitHub Actions](https://github.com/dockcenter/paper/actions) to track PaperMC builds and automatically build Docker image.
 
 ## What is PaperMC?
 
