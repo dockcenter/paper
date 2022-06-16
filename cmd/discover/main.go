@@ -91,6 +91,7 @@ func main() {
 		// Run command
 		output, err := exec.Command("bash", "-c", command).CombinedOutput()
 		if err != nil {
+			fmt.Println(string(output))
 			panic(err)
 		}
 		fmt.Println(output)
