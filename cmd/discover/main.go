@@ -6,7 +6,6 @@ import (
 	. "github.com/dockcenter/paper/internal/app/discover"
 	"github.com/go-resty/resty/v2"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -78,22 +77,35 @@ func main() {
 
 	// Build workflow dispatch commands
 	var commands []string
+	commands = append(commands, "#!/bin/sh")
 	for _, info := range imageInfo {
 		commands = append(commands, BuildCommand(DockerBuildWorkflow, info))
 	}
 	command := strings.Join(commands, "\n")
 
+	// Create scripts folder
+	err = os.MkdirAll("scripts", 0700)
+	if err != nil {
+		panic(err)
+	}
+
 	if dryRun {
-		// print scripts content
-		fmt.Println("\nThis is a dry run, so we generate the following script but don't run it")
-		fmt.Println("\n" + command)
-	} else {
-		// Run command
-		output, err := exec.Command("bash", "-c", command).CombinedOutput()
+		// Create empty scripts/discover.sh
+		err := os.WriteFile("scripts/dispatch.sh", []byte("#!/bin/sh\n"), 0700)
 		if err != nil {
-			fmt.Println(string(output))
 			panic(err)
 		}
-		fmt.Println(output)
+
+		// print scripts content
+		fmt.Println("\nThis is a dry run, so we generate the following script but not write to scripts/dispatch.sh")
+		fmt.Println("\n" + command)
+	} else {
+		// Write to scripts/dispatch.sh
+		err = os.WriteFile("scripts/dispatch.sh", []byte(command), 0700)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("\nShell script has been generated to scripts/dispatch.sh")
 	}
 }
