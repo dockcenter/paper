@@ -43,3 +43,11 @@ jobs:
           labels: ${{ steps.docker_meta.outputs.labels }}
           build-args: |
             DOWNLOAD_URL=${{ inputs.downloadURL }}
+      - name: Summary
+        run: |
+          echo "## Image tags" >> $GITHUB_STEP_SUMMARY
+          while IFS= read -r line ;
+            do echo "- $line" >> $GITHUB_STEP_SUMMARY;
+          done <<< "$tags"
+        env:
+          tags: ${{ steps.docker_meta.outputs.tags }}

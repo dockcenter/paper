@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: "0 * * * *"
 
-name: ${{ github.action }}
+name: Watch paper release
 
 jobs:
   watch-releases:
