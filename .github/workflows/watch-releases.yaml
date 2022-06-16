@@ -9,6 +9,8 @@ jobs:
   watch-releases:
     name: Watch Paper release
     runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ !(github.ref_name == 'main' && (github.event == 'schedule' || github.event == 'push')) }}
 
     steps:
       - name: Checkout
@@ -21,3 +23,7 @@ jobs:
           cache: true
       - name: Run discover script
         run: go run github.com/dockcenter/paper/cmd/discover
+      - name: Dispatch 'Build and push Docker image' workflow
+        run: scripts/dispatch.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
