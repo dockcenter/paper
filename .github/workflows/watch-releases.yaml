@@ -1,0 +1,25 @@
+on:
+  push: {}
+  schedule:
+    - cron: "0 * * * *"
+
+name: Watch paper release
+
+jobs:
+  watch-releases:
+    name: Watch Paper release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.18.2'
+          check-latest: true
+          cache: true
+      - name: Run discover script
+        run: go run github.com/dockcenter/paper/cmd/discover
+        env:
+          DRY_RUN: true
