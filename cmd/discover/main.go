@@ -73,7 +73,7 @@ func main() {
 	// Print tags to build
 	fmt.Println("\nTags to promote:")
 	for _, info := range imageInfo {
-		fmt.Println(info.Tags)
+		fmt.Println(strings.Join(strings.Split(info.Tags, "\n"), ","))
 	}
 
 	// Build workflow dispatch commands
