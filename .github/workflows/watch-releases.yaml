@@ -23,6 +23,8 @@ jobs:
           cache: true
       - name: Run discover script
         run: go run github.com/dockcenter/paper/cmd/discover
+      - name: Print script content
+        run: cat scripts/dispatch.sh
       - name: Dispatch 'Build and push Docker image' workflow
         run: scripts/dispatch.sh
         env:
