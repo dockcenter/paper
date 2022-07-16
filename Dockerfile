@@ -27,7 +27,8 @@ ENV JAVA_FLAGS="-XX:+UseStringDeduplication -XX:+UseG1GC -XX:+ParallelRefProcEna
 
 WORKDIR /data
 
-RUN addgroup -S paper && \
+RUN apk add --upgrade --no-cache openssl && \
+    addgroup -S paper && \
     adduser -S paper -G paper && \
     chown paper:paper /data
 
